@@ -20,6 +20,7 @@ class MainActivity : AppCompatActivity() {
             Handler().postDelayed({
                 imageViewFlash.visibility = View.GONE
                 startActivity(Intent(this, DashboardActivity::class.java))
+                finish()
             }, 500)
         }, 1500)
     }
