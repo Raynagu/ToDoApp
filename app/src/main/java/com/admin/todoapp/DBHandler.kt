@@ -125,6 +125,37 @@ class DBHandler(val context: Context): SQLiteOpenHelper(context, DB_NAME, null, 
         return result
     }
 
+    // editToDo() add new To do to th DB
+    fun editToDo(toDo: ToDo){
+        //get writeableDatabase object to write DB
+        val db = writableDatabase
+        //get contentValues() object to store the col & values
+        val cv = ContentValues()
+        //put the values in ContentValues object
+        cv.put(COL_NAME, toDo.name)
+
+        //update operation
+        db.update(TABLE_TODO, cv, "$COL_ID = ?", arrayOf(toDo.id.toString()))
+
+    }
+
+    // editToDoItem() add new To do to th DB
+    fun editToDoItem(toDoItem: ToDoItem){
+        //get writeableDatabase object to write DB
+        val db = writableDatabase
+        //get contentValues() object to store the col & values
+        val cv = ContentValues()
+        //put the values in ContentValues object
+        cv.put(COL_ITEM_NAME, toDoItem.itemName)
+        cv.put(COL_TODO_ID, toDoItem.toDoId)
+        cv.put(COL_IS_COMPLETED, toDoItem.isCompleted)
+
+        //update operation
+        db.update(TABLE_TODO_ITEM, cv, "$COL_ID = ?", arrayOf(toDoItem.id.toString()))
+
+    }
+
+
     fun updateToDoItem(toDoItem: ToDoItem) {
         val db = writableDatabase
         val cv = ContentValues()
@@ -133,5 +164,53 @@ class DBHandler(val context: Context): SQLiteOpenHelper(context, DB_NAME, null, 
         cv.put(COL_IS_COMPLETED, toDoItem.isCompleted)
 
         db.update(TABLE_TODO_ITEM, cv, "$COL_ID=?", arrayOf(toDoItem.id.toString()))
+    }
+
+    fun updateToDoItemCompletedStatus(toDoId: Long, isCompleted: Boolean) {
+        val db = writableDatabase
+        val qResult = db.rawQuery("SELECT * FROM $TABLE_TODO_ITEM WHERE $COL_TODO_ID = $toDoId", null)
+
+        //fetch list from qResult
+        if (qResult.moveToFirst()){
+            do{
+                val toDoItems = ToDoItem()
+                //get each properties value by getColumnIndex()
+                toDoItems.id = qResult.getLong(qResult.getColumnIndex(COL_ID))
+                toDoItems.toDoId =qResult.getLong(qResult.getColumnIndex(COL_TODO_ID))
+                toDoItems.itemName = qResult.getString(qResult.getColumnIndex(COL_ITEM_NAME))
+                toDoItems.isCompleted = isCompleted
+
+                updateToDoItem(toDoItems)
+            }while(qResult.moveToNext())
+        }
+
+        qResult.close()
+    }
+
+    fun isToDoCompleted(toDoId: Long) : Boolean{
+        var result = true
+        val db = readableDatabase
+        val qResult = db.rawQuery("SELECT * FROM $TABLE_TODO_ITEM WHERE $COL_TODO_ID = $toDoId", null)
+
+        if(qResult.moveToFirst()){
+            do{
+                if(qResult.getInt(qResult.getColumnIndex(COL_IS_COMPLETED)) < 1) {
+                    return false
+                }
+            }while (qResult.moveToNext())
+        }
+
+        return true
+    }
+
+    fun deleteToDo(todoId: Long){
+        val db = writableDatabase
+        db.delete(TABLE_TODO_ITEM, "$COL_TODO_ID = ?", arrayOf(todoId.toString()))
+        db.delete(TABLE_TODO, "$COL_ID = ?", arrayOf(todoId.toString()))
+    }
+
+    fun deleteToDoItem(todoItemId: Long){
+        val db = writableDatabase
+        db.delete(TABLE_TODO_ITEM, "$COL_ID = ?", arrayOf(todoItemId.toString()))
     }
 }

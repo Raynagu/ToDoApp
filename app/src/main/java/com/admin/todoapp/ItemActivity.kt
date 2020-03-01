@@ -1,6 +1,5 @@
 package com.admin.todoapp
 
-import android.content.Context
 import android.content.DialogInterface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -36,6 +35,7 @@ class ItemActivity : AppCompatActivity() {
             // Add new sun ToDoItems to the clicked ToDO_id/Name
             //set Alert Dialog to get new todoItem name
             val dialog = AlertDialog.Builder(this)
+            dialog.setTitle("Add sub task")
             //inflate the custom dialog layout and get the View object
             val view = layoutInflater.inflate(R.layout.dashboard_dialog, null)
             val todoItem = view.editTextToDoName
@@ -63,13 +63,42 @@ class ItemActivity : AppCompatActivity() {
 
     }
 
+    fun editToDoIem(item: ToDoItem) {
+        // Add new sun ToDoItems to the clicked ToDO_id/Name
+        //set Alert Dialog to get new todoItem name
+        val dialog = AlertDialog.Builder(this)
+        dialog.setTitle("Edit ToDo item name")
+        //inflate the custom dialog layout and get the View object
+        val view = layoutInflater.inflate(R.layout.dashboard_dialog, null)
+        val todoItem = view.editTextToDoName
+        todoItem.setText(item.itemName)
+        dialog.setView(view)
+        dialog.setPositiveButton("Update"){ _: DialogInterface, _: Int ->
+            //validate the input
+            if(todoItem.text.isNotEmpty()){
+                item.toDoId = todoId
+                item.itemName = todoItem.text.toString()
+                item.isCompleted = false
+
+                //add toDoItem to Database
+                val rs = dbHandler.editToDoItem(item)
+                //refresh the recycler
+                refreshList()
+            }
+        }
+        dialog.setNegativeButton("Cancel"){ _: DialogInterface, _: Int ->
+
+        }
+        dialog.show()
+    }
+
     override fun onResume() {
         refreshList()
         super.onResume()
     }
 
     private fun refreshList() {
-        item_recycler.adapter = ItemAdapter(this, dbHandler, dbHandler.getToDOItem(todoId))
+        item_recycler.adapter = ItemAdapter(this, dbHandler.getToDOItem(todoId))
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -81,15 +110,17 @@ class ItemActivity : AppCompatActivity() {
         }
     }
 
-    class ItemAdapter(val context: Context, val dbHandler: DBHandler, val list: MutableList<ToDoItem>) :
+    class ItemAdapter(val activity: ItemActivity, val list: MutableList<ToDoItem>) :
         RecyclerView.Adapter<ItemAdapter.ViewHolder>(){
 
         class ViewHolder(v:View): RecyclerView.ViewHolder(v) {
             val itemName: CheckBox = v.cb_item
+            val itemEdit = v.iv_editItem
+            val itemDelete = v.iv_deleteItem
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-            return ViewHolder(LayoutInflater.from(context).inflate(R.layout.rv_item_child, parent, false))
+            return ViewHolder(LayoutInflater.from(activity).inflate(R.layout.rv_item_child, parent, false))
         }
 
         override fun getItemCount(): Int {
@@ -103,7 +134,26 @@ class ItemActivity : AppCompatActivity() {
             //set onCLickListener() to toDOItems
             holder.itemName.setOnClickListener {
                 list[position].isCompleted = !list[position].isCompleted
-                dbHandler.updateToDoItem(list[position])
+                activity.dbHandler.updateToDoItem(list[position])
+            }
+
+            holder.itemEdit.setOnClickListener {
+                activity.editToDoIem(list[position])
+            }
+
+            holder.itemDelete.setOnClickListener {
+                val dialog = AlertDialog.Builder(activity)
+                dialog.setTitle("Warning")
+               dialog.setMessage("Are you sure ?")
+                dialog.setPositiveButton("Delete"){ _: DialogInterface, _: Int ->
+
+                    activity.dbHandler.deleteToDoItem(list[position].id)
+                    activity.refreshList()
+                }
+                dialog.setNegativeButton("Cancel"){ _: DialogInterface, _: Int ->
+
+                }
+                dialog.show()
             }
         }
 

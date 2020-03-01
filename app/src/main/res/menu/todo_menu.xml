@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/todo_edit"
+        android:title="@string/todo_edit"/>
+    <item android:id="@+id/todo_completed"
+        android:title="@string/todo_completed"/>
+    <item android:id="@+id/todo_delete"
+        android:title="@string/todo_delete"/>
+    <item android:id="@+id/todo_reset"
+        android:title="@string/todo_reset"/>
+</menu>

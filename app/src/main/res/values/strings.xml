@@ -9,4 +9,10 @@
 
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+
+    <!--    TodoList menu-->
+    <string name="todo_edit">Edit</string>
+    <string name="todo_completed">Completed</string>
+    <string name="todo_delete">Delete</string>
+    <string name="todo_reset">Reset</string>
 </resources>
