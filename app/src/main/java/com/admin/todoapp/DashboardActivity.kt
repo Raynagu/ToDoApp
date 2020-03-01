@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -32,7 +31,6 @@ class DashboardActivity : AppCompatActivity() {
 
 
         fab.setOnClickListener {
-            Log.i("Message", "fab clicked")
             //Build alertDialog
             val dialog = AlertDialog.Builder(this)
             //inflate the custom dialog layout and get the View object
